@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/license-Non--Commercial-blue.svg)](#license)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2023.1.0+-brightgreen.svg)](https://www.home-assistant.io/)
 
-An extended Tautulli integration for Home Assistant that exposes detailed Plex media server statistics as sensors — total movies, total TV shows, active streams with media type info, and play counts over 7 and 30 days.
+An extended Tautulli integration for Home Assistant that exposes detailed Plex media server statistics as sensors — total movies, total TV shows, active streams with media type detection, and play counts over 7 days, 30 days, 1 year, and current calendar year.
 
 ---
 
@@ -13,9 +13,12 @@ An extended Tautulli integration for Home Assistant that exposes detailed Plex m
 
 - **Total movies** across all Plex movie libraries (auto-summed)
 - **Total TV shows** across all Plex show libraries (show count, not seasons/episodes)
-- **Active streams** with per-stream details (user, title, movie vs. episode, player, progress)
+- **Active streams** — live count of concurrent streams
+- **Active stream type** — shows whether active streams are Movie, TV Show, Mixed, or Idle
 - **Streams last 7 days** with daily breakdown
 - **Streams last 30 days** with daily breakdown
+- **Streams last year** (365 days) with daily breakdown
+- **Streams this year** (current calendar year) with daily breakdown
 - GUI config flow — no YAML needed
 - Danish and English translations
 - 60-second update interval for near-real-time stream monitoring
@@ -29,8 +32,11 @@ An extended Tautulli integration for Home Assistant that exposes detailed Plex m
 | `sensor.tautulli_total_movies` | `int` | Total number of movies across all movie libraries |
 | `sensor.tautulli_total_tv_shows` | `int` | Total number of TV shows (not seasons or episodes) |
 | `sensor.tautulli_active_streams` | `int` | Number of currently active streams |
+| `sensor.tautulli_active_stream_type` | `string` | Movie, TV Show, Mixed, or Idle |
 | `sensor.tautulli_streams_7_days` | `int` | Total play count over the last 7 days |
 | `sensor.tautulli_streams_30_days` | `int` | Total play count over the last 30 days |
+| `sensor.tautulli_streams_1_year` | `int` | Total play count over the last 365 days |
+| `sensor.tautulli_streams_this_year` | `int` | Total play count since January 1st |
 
 ### Extra Attributes
 
@@ -39,10 +45,15 @@ An extended Tautulli integration for Home Assistant that exposes detailed Plex m
 - `movie_streams`: count of active movie streams
 - `episode_streams`: count of active episode/TV streams
 
+**Active Stream Type** includes:
+- `movie_streams`: count of active movie streams
+- `episode_streams`: count of active episode/TV streams
+- `sessions`: full session details
+
 **Total Movies / Total TV Shows** includes:
 - `libraries`: breakdown of count per library name
 
-**Streams (7/30 Days)** includes:
+**Streams (7d / 30d / 1 Year / This Year)** includes:
 - `daily`: date-keyed breakdown of daily play counts
 
 ---
