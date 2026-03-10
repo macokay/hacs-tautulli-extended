@@ -1,7 +1,7 @@
 """Sensors for Tautulli Extended."""
 import asyncio
 import logging
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import aiohttp
 
@@ -39,8 +39,11 @@ async def async_setup_entry(
         TautulliTotalMoviesSensor(coordinator, entry),
         TautulliTotalShowsSensor(coordinator, entry),
         TautulliActiveStreamsSensor(coordinator, entry),
+        TautulliActiveStreamTypeSensor(coordinator, entry),
         TautulliStreams7dSensor(coordinator, entry),
         TautulliStreams30dSensor(coordinator, entry),
+        TautulliStreams365dSensor(coordinator, entry),
+        TautulliStreamsThisYearSensor(coordinator, entry),
     ])
 
 
@@ -86,7 +89,7 @@ class TautulliCoordinator(DataUpdateCoordinator):
             libraries, activity, plays = await asyncio.gather(
                 self._api_call("get_libraries"),
                 self._api_call("get_activity"),
-                self._api_call("get_plays_by_date", {"time_range": "30"}),
+                self._api_call("get_plays_by_date", {"time_range": "365"}),
             )
         except (aiohttp.ClientError, TimeoutError) as err:
             raise UpdateFailed(f"Error communicating with Tautulli: {err}") from err
@@ -122,9 +125,21 @@ class TautulliCoordinator(DataUpdateCoordinator):
                 "progress_percent": s.get("progress_percent", "0"),
             })
 
-        # --- Plays by date: 7d and 30d ---
-        # plays.categories = list of date strings
-        # plays.series = list of dicts with "name" (library) and "data" (daily counts)
+        # Determine active stream type summary
+        movie_streams = sum(1 for s in sessions if s["media_type"] == "movie")
+        episode_streams = sum(1 for s in sessions if s["media_type"] == "episode")
+        if stream_count == 0:
+            stream_type = "Idle"
+        elif movie_streams > 0 and episode_streams > 0:
+            stream_type = "Mixed"
+        elif movie_streams > 0:
+            stream_type = "Movie"
+        elif episode_streams > 0:
+            stream_type = "TV Show"
+        else:
+            stream_type = "Other"
+
+        # --- Plays by date: 7d, 30d, 365d, this year ---
         categories = plays.get("categories", [])
         series_list = plays.get("series", [])
 
@@ -134,12 +149,23 @@ class TautulliCoordinator(DataUpdateCoordinator):
             for i, count in enumerate(series.get("data", [])):
                 daily_totals[i] += int(count)
 
-        streams_30d = sum(daily_totals)
+        streams_365d = sum(daily_totals)
+        streams_30d = sum(daily_totals[-30:]) if len(daily_totals) >= 30 else sum(daily_totals)
         streams_7d = sum(daily_totals[-7:]) if len(daily_totals) >= 7 else sum(daily_totals)
 
+        # This year: sum entries where date >= Jan 1 of current year
+        year_start = f"{datetime.now().year}-01-01"
+        streams_this_year = 0
+        daily_breakdown_this_year = {}
+        for date_str, total in zip(categories, daily_totals):
+            if date_str >= year_start:
+                streams_this_year += total
+                daily_breakdown_this_year[date_str] = total
+
         # Build daily breakdown dicts for attributes
-        daily_breakdown_30d = dict(zip(categories, daily_totals))
+        daily_breakdown_30d = dict(zip(categories[-30:], daily_totals[-30:]))
         daily_breakdown_7d = dict(zip(categories[-7:], daily_totals[-7:]))
+        daily_breakdown_365d = dict(zip(categories, daily_totals))
 
         return {
             "total_movies": total_movies,
@@ -148,10 +174,17 @@ class TautulliCoordinator(DataUpdateCoordinator):
             "show_libraries": show_libraries,
             "stream_count": stream_count,
             "sessions": sessions,
+            "stream_type": stream_type,
+            "movie_streams": movie_streams,
+            "episode_streams": episode_streams,
             "streams_7d": streams_7d,
             "streams_30d": streams_30d,
+            "streams_365d": streams_365d,
+            "streams_this_year": streams_this_year,
             "daily_breakdown_7d": daily_breakdown_7d,
             "daily_breakdown_30d": daily_breakdown_30d,
+            "daily_breakdown_365d": daily_breakdown_365d,
+            "daily_breakdown_this_year": daily_breakdown_this_year,
         }
 
 
@@ -218,7 +251,7 @@ class TautulliTotalShowsSensor(TautulliBaseSensor):
 
 
 class TautulliActiveStreamsSensor(TautulliBaseSensor):
-    """Sensor for number of active streams with per-stream details."""
+    """Sensor for number of active streams."""
 
     _attr_name = "Active Streams"
     _attr_icon = "mdi:play-network"
@@ -234,15 +267,34 @@ class TautulliActiveStreamsSensor(TautulliBaseSensor):
 
     @property
     def extra_state_attributes(self):
-        sessions = self.coordinator.data.get("sessions", [])
         return {
-            "sessions": sessions,
-            "movie_streams": sum(
-                1 for s in sessions if s.get("media_type") == "movie"
-            ),
-            "episode_streams": sum(
-                1 for s in sessions if s.get("media_type") == "episode"
-            ),
+            "sessions": self.coordinator.data.get("sessions", []),
+            "movie_streams": self.coordinator.data.get("movie_streams", 0),
+            "episode_streams": self.coordinator.data.get("episode_streams", 0),
+        }
+
+
+class TautulliActiveStreamTypeSensor(TautulliBaseSensor):
+    """Sensor showing whether active streams are Movie, TV Show, Mixed, or Idle."""
+
+    _attr_name = "Active Stream Type"
+    _attr_icon = "mdi:filmstrip-box-multiple"
+    _attr_state_class = None
+
+    def __init__(self, coordinator, entry):
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = f"{entry.entry_id}_active_stream_type"
+
+    @property
+    def native_value(self):
+        return self.coordinator.data.get("stream_type", "Idle")
+
+    @property
+    def extra_state_attributes(self):
+        return {
+            "movie_streams": self.coordinator.data.get("movie_streams", 0),
+            "episode_streams": self.coordinator.data.get("episode_streams", 0),
+            "sessions": self.coordinator.data.get("sessions", []),
         }
 
 
@@ -284,3 +336,43 @@ class TautulliStreams30dSensor(TautulliBaseSensor):
     @property
     def extra_state_attributes(self):
         return {"daily": self.coordinator.data.get("daily_breakdown_30d", {})}
+
+
+class TautulliStreams365dSensor(TautulliBaseSensor):
+    """Sensor for total streams in the last 365 days."""
+
+    _attr_name = "Streams (1 Year)"
+    _attr_icon = "mdi:chart-bar"
+    _attr_native_unit_of_measurement = "plays"
+
+    def __init__(self, coordinator, entry):
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = f"{entry.entry_id}_streams_365d"
+
+    @property
+    def native_value(self):
+        return self.coordinator.data.get("streams_365d")
+
+    @property
+    def extra_state_attributes(self):
+        return {"daily": self.coordinator.data.get("daily_breakdown_365d", {})}
+
+
+class TautulliStreamsThisYearSensor(TautulliBaseSensor):
+    """Sensor for total streams this calendar year."""
+
+    _attr_name = "Streams (This Year)"
+    _attr_icon = "mdi:calendar-check"
+    _attr_native_unit_of_measurement = "plays"
+
+    def __init__(self, coordinator, entry):
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = f"{entry.entry_id}_streams_this_year"
+
+    @property
+    def native_value(self):
+        return self.coordinator.data.get("streams_this_year")
+
+    @property
+    def extra_state_attributes(self):
+        return {"daily": self.coordinator.data.get("daily_breakdown_this_year", {})}

@@ -6,9 +6,12 @@ Extended Plex statistics for Home Assistant via Tautulli.
 
 - **Total Movies** — sum of all Plex movie libraries
 - **Total TV Shows** — number of shows (not seasons/episodes)
-- **Active Streams** — live stream count with per-session details (movie vs. episode, user, progress)
+- **Active Streams** — live stream count with per-session details
+- **Active Stream Type** — Movie, TV Show, Mixed, or Idle
 - **Streams (7 Days)** — total plays in the last week
 - **Streams (30 Days)** — total plays in the last month
+- **Streams (1 Year)** — total plays in the last 365 days
+- **Streams (This Year)** — total plays since January 1st
 
 ## Requirements
 
