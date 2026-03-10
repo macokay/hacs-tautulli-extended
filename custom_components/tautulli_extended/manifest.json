@@ -1,0 +1,12 @@
+{
+  "domain": "tautulli_extended",
+  "name": "Tautulli Extended",
+  "version": "1.0.0",
+  "documentation": "https://github.com/macokay/hacs-tautulli-extended",
+  "issue_tracker": "https://github.com/macokay/hacs-tautulli-extended/issues",
+  "dependencies": [],
+  "codeowners": ["@macokay"],
+  "requirements": [],
+  "iot_class": "local_polling",
+  "config_flow": true
+}

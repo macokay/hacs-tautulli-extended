@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Tautulli Extended",
+        "description": "Indtast din Tautulli server-URL og API-nøgle.",
+        "data": {
+          "url": "Tautulli URL",
+          "api_key": "API-nøgle"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Denne Tautulli-server er allerede konfigureret."
+    },
+    "error": {
+      "cannot_connect": "Kunne ikke oprette forbindelse til Tautulli. Tjek URL og API-nøgle."
+    }
+  }
+}

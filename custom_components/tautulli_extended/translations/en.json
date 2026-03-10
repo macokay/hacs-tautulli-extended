@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Tautulli Extended",
+        "description": "Enter your Tautulli server URL and API key.",
+        "data": {
+          "url": "Tautulli URL",
+          "api_key": "API Key"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "This Tautulli server is already configured."
+    },
+    "error": {
+      "cannot_connect": "Could not connect to Tautulli. Check URL and API key."
+    }
+  }
+}
