@@ -1,7 +1,7 @@
 {
   "domain": "tautulli_extended",
   "name": "Tautulli Extended",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "documentation": "https://github.com/macokay/hacs-tautulli-extended",
   "issue_tracker": "https://github.com/macokay/hacs-tautulli-extended/issues",
   "dependencies": [],

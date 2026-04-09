@@ -1,2 +1,25 @@
+# Claude Code — NEVER push to GitHub
+.claude/
+CLAUDE.md
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Tests
+.pytest_cache/
+htmlcov/
+.coverage
+
+# IDE
+.vscode/
+.idea/
+
+# OS
 .DS_Store
-.github/workflows/
+**/.DS_Store
+Thumbs.db
+
+# Environment
+.env

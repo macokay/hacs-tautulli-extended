@@ -1,18 +1,37 @@
-# Tautulli Extended — Home Assistant Integration
+<p align="center">
+  <img src="custom_components/tautulli_extended/brand/icon.svg" alt="Tautulli Extended" width="120" />
+</p>
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
-[![GitHub release](https://img.shields.io/github/release/macokay/hacs-tautulli-extended.svg)](https://github.com/macokay/hacs-tautulli-extended/releases)
-[![License](https://img.shields.io/badge/license-Non--Commercial-blue.svg)](#license)
-[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2023.1.0+-brightgreen.svg)](https://www.home-assistant.io/)
+<h1 align="center">Tautulli Extended</h1>
 
-An extended Tautulli integration for Home Assistant that exposes detailed Plex media server statistics as sensors — total movies, total TV shows, active streams with media type detection, and play counts over 7 days, 30 days, 1 year, and current calendar year.
+<p align="center">
+  Detailed Plex media server statistics in Home Assistant — library counts, active streams with media type detection, and play counts over multiple time ranges.
+</p>
+
+<p align="center">
+  <a href="https://github.com/hacs/integration">
+    <img src="https://img.shields.io/badge/HACS-Custom-orange.svg" alt="HACS Custom" />
+  </a>
+  <a href="https://github.com/macokay/hacs-tautulli-extended/releases">
+    <img src="https://img.shields.io/github/v/release/macokay/hacs-tautulli-extended" alt="GitHub release" />
+  </a>
+  <a href="https://github.com/macokay/hacs-tautulli-extended/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/License-Non--Commercial-blue.svg" alt="License" />
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://www.buymeacoffee.com/macokay">
+    <img src="https://img.shields.io/badge/Buy%20Me%20A%20Coffee-%23FFDD00.svg?logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee" />
+  </a>
+</p>
 
 ---
 
 ## Features
 
 - **Total movies** across all Plex movie libraries (auto-summed)
-- **Total TV shows** across all Plex show libraries (show count, not seasons/episodes)
+- **Total TV shows** across all Plex show libraries (show count, not seasons or episodes)
 - **Active streams** — live count of concurrent streams
 - **Active stream type** — shows whether active streams are Movie, TV Show, Mixed, or Idle
 - **Streams last 7 days** with daily breakdown
@@ -25,12 +44,57 @@ An extended Tautulli integration for Home Assistant that exposes detailed Plex m
 
 ---
 
-## Sensors
+## Requirements
+
+| Requirement | Version / Details |
+|---|---|
+| Home Assistant | 2023.1 or newer |
+| Tautulli | Running instance with API access enabled |
+| Tautulli API key | Found in **Tautulli → Settings → Web Interface → API key** |
+
+---
+
+## Installation
+
+### Automatic — via HACS
+
+1. Open **HACS** in Home Assistant.
+2. Go to **Integrations** → three-dot menu (⋮) → **Custom repositories**.
+3. Add `https://github.com/macokay/hacs-tautulli-extended` as **Integration**.
+4. Search for **Tautulli Extended** and click **Download**.
+5. Restart Home Assistant.
+
+### Manual
+
+1. Download the latest release from [GitHub Releases](https://github.com/macokay/hacs-tautulli-extended/releases).
+2. Copy the `custom_components/tautulli_extended` folder to your `config/custom_components/` directory.
+3. Restart Home Assistant.
+
+---
+
+## Configuration
+
+1. Go to **Settings → Devices & Services → Add Integration**.
+2. Search for **Tautulli Extended**.
+3. Enter the required fields:
+
+| Field | Description |
+|---|---|
+| Tautulli URL | Base URL of your Tautulli instance (e.g. `http://192.168.1.100:8181`) |
+| API key | Your Tautulli API key |
+
+The integration tests the connection against the Tautulli API before saving.
+
+---
+
+## Data
+
+### Entities
 
 | Entity | Type | Description |
-|--------|------|-------------|
-| `sensor.tautulli_total_movies` | `int` | Total number of movies across all movie libraries |
-| `sensor.tautulli_total_tv_shows` | `int` | Total number of TV shows (not seasons or episodes) |
+|---|---|---|
+| `sensor.tautulli_total_movies` | `int` | Total movies across all movie libraries |
+| `sensor.tautulli_total_tv_shows` | `int` | Total TV shows (not seasons or episodes) |
 | `sensor.tautulli_active_streams` | `int` | Number of currently active streams |
 | `sensor.tautulli_active_stream_type` | `string` | Movie, TV Show, Mixed, or Idle |
 | `sensor.tautulli_streams_7_days` | `int` | Total play count over the last 7 days |
@@ -38,82 +102,43 @@ An extended Tautulli integration for Home Assistant that exposes detailed Plex m
 | `sensor.tautulli_streams_1_year` | `int` | Total play count over the last 365 days |
 | `sensor.tautulli_streams_this_year` | `int` | Total play count since January 1st |
 
-### Extra Attributes
+### Attributes
 
-**Active Streams** includes:
-- `sessions`: list of active sessions with `user`, `title`, `media_type` (movie/episode), `player`, `state`, `progress_percent`
-- `movie_streams`: count of active movie streams
-- `episode_streams`: count of active episode/TV streams
+| Attribute | Available on | Description |
+|---|---|---|
+| `sessions` | `active_streams`, `active_stream_type` | List of active sessions with `user`, `title`, `media_type`, `player`, `state`, `progress_percent` |
+| `movie_streams` | `active_streams`, `active_stream_type` | Count of active movie streams |
+| `episode_streams` | `active_streams`, `active_stream_type` | Count of active TV streams |
+| `libraries` | `total_movies`, `total_tv_shows` | Count breakdown per library name |
+| `daily` | All stream count sensors | Date-keyed breakdown of daily play counts |
 
-**Active Stream Type** includes:
-- `movie_streams`: count of active movie streams
-- `episode_streams`: count of active episode/TV streams
-- `sessions`: full session details
+### Update interval
 
-**Total Movies / Total TV Shows** includes:
-- `libraries`: breakdown of count per library name
-
-**Streams (7d / 30d / 1 Year / This Year)** includes:
-- `daily`: date-keyed breakdown of daily play counts
+Data is fetched every 60 seconds.
 
 ---
 
-## Installation via HACS
+## Updating
 
-1. In Home Assistant, go to **HACS → Integrations → ⋮ → Custom repositories**
-2. Add `https://github.com/macokay/hacs-tautulli-extended` as category **Integration**
-3. Find **Tautulli Extended** in HACS and click **Download**
-4. Restart Home Assistant
+**Via HACS:** HACS will notify you when an update is available. Click **Update** on the integration card.
 
-### Manual installation
-
-Copy the `custom_components/tautulli_extended` folder into your `config/custom_components/` directory and restart.
+**Manual:** Replace the `custom_components/tautulli_extended` folder with the new version and restart Home Assistant.
 
 ---
 
-## Configuration
+## Known Limitations
 
-After installation:
-
-1. Go to **Settings → Devices & Services → Add Integration**
-2. Search for **Tautulli Extended**
-3. Enter your **Tautulli URL** (e.g. `http://192.168.1.100:8181`) and **API key**
-4. Click **Submit**
-
-Your Tautulli API key can be found in **Tautulli → Settings → Web Interface → API key**.
-
----
-
-## Data source
-
-Data is fetched from your local [Tautulli](https://tautulli.com/) instance via its API. Tautulli must be installed and running alongside your Plex Media Server.
-
----
-
-## Requirements
-
-- A running [Tautulli](https://tautulli.com/) instance with API access
-- Tautulli API key
-- Home Assistant 2023.1.0 or newer
-
----
-
-## Known limitations
-
-- Library counts update when Tautulli scans libraries (not instantly when new media is added)
+- Library counts update when Tautulli scans libraries — not instantly when new media is added
 - Play counts depend on Tautulli's recorded history — if Tautulli was recently installed, historical data may be incomplete
 
 ---
 
 ## Credits
 
-Built by [Mac O Kay](https://github.com/macokay). Data provided by [Tautulli](https://tautulli.com/).
+- [Tautulli](https://tautulli.com/) — Plex monitoring and statistics application
 
 ---
 
 ## License
 
-© 2026 Mac O Kay
-Free to use and modify for personal, non-commercial use.
-Credit appreciated if you share or build upon this work.
-Commercial use is not permitted.
+&copy; 2026 Mac O Kay. Free to use and modify for personal, non-commercial use. Attribution appreciated if you share or build upon this work. Commercial use is not permitted.

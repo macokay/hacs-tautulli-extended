@@ -1,22 +1,27 @@
 ---
 name: Feature request
-about: Suggest an idea or improvement
+about: Suggest a new feature or improvement
 title: "[FEATURE] "
 labels: enhancement
 assignees: macokay
 ---
 
 ## Summary
-A clear description of the feature you'd like to see.
+
+A clear and concise description of the feature you are requesting.
 
 ## Problem it solves
-What problem or limitation does this address?
+
+Describe the problem or limitation this feature addresses.
 
 ## Proposed solution
-How do you imagine this working?
+
+Describe how you envision this working. Include examples if applicable.
 
 ## Alternatives considered
-Any alternative approaches you've thought about?
+
+Any alternative solutions or workarounds you have considered.
 
 ## Additional context
-Any other context, screenshots, or references.
+
+Any other context, screenshots, or references relevant to the request.
