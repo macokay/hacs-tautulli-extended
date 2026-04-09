@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient for Premium Depth -->
+    <linearGradient id="grad-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3A3D44"/>
+      <stop offset="100%" stop-color="#1E2024"/>
+    </linearGradient>
+
+    <!-- True Cutter Mask -->
+    <mask id="cutout">
+      <rect width="100%" height="100%" fill="white" />
+      <!-- Cut out overlapping orange parts -->
+      <path d="M 131 381 L 251 281 L 361 131" fill="none" stroke="black" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" />
+      <circle cx="251" cy="281" r="50" fill="black" />
+    </mask>
+
+    <!-- Deep Drop Shadows for Premium Look -->
+    <filter id="shadow-orange" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.4" />
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#E5A00D" flood-opacity="0.4" />
+    </filter>
+    
+    <filter id="shadow-white" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="18" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+
+    <linearGradient id="grad-orange" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFC14D"/>
+      <stop offset="100%" stop-color="#D97A00"/>
+    </linearGradient>
+  </defs>
+  
+  <g>
+    <!-- App Icon Circle Background -->
+    <circle cx="256" cy="256" r="236" fill="url(#grad-bg)" stroke="#494D55" stroke-width="2" />
+  </g>
+
+  <g filter="url(#shadow-white)">
+    <g mask="url(#cutout)">
+      <!-- White Path & Nodes -->
+      <path d="M 131 211 L 251 351 L 381 381" fill="none" stroke="#FFFFFF" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+      <circle cx="131" cy="211" r="38" fill="#F8FAFC" />
+      <circle cx="251" cy="351" r="38" fill="#F8FAFC" />
+      <circle cx="381" cy="381" r="38" fill="#F8FAFC" />
+    </g>
+  </g>
+
+  <g filter="url(#shadow-orange)">
+    <!-- Orange Path & Nodes -->
+    <path d="M 131 381 L 251 281 L 361 131" fill="none" stroke="url(#grad-orange)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+    <circle cx="131" cy="381" r="38" fill="url(#grad-orange)" />
+    <circle cx="251" cy="281" r="38" fill="url(#grad-orange)" />
+    <circle cx="361" cy="131" r="38" fill="url(#grad-orange)" />
+  </g>
+</svg>
