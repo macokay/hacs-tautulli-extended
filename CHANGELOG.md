@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Brand icon replaced: PNG removed, SVG added (`brand/icon.svg`)
 - README restructured to standard template format — logo, badges, Buy Me A Coffee, structured sections
 - Issue templates updated to standard format — added Actual behaviour section and log filter instructions
-- `.gitignore` updated with standard exclusions
+- `.gitignore` removed (managed by global gitignore)
 
 ---
 
