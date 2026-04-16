@@ -1,13 +1,13 @@
 {
   "domain": "tautulli_extended",
   "name": "Tautulli Extended",
-  "version": "1.1.4",
-  "documentation": "https://github.com/macokay/hacs-tautulli-extended",
-  "issue_tracker": "https://github.com/macokay/hacs-tautulli-extended/issues",
-  "dependencies": [],
   "codeowners": ["@macokay"],
-  "requirements": [],
-  "iot_class": "local_polling",
   "config_flow": true,
-  "integration_type": "service"
+  "dependencies": [],
+  "documentation": "https://github.com/macokay/hacs-tautulli-extended",
+  "integration_type": "service",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/macokay/hacs-tautulli-extended/issues",
+  "requirements": [],
+  "version": "1.1.5"
 }
