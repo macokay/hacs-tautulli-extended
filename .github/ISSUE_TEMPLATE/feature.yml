@@ -1,0 +1,29 @@
+name: Feature request
+description: Suggest a new feature or improvement
+title: "[FR]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to request new features. Be as specific as possible.
+  - type: textarea
+    validations:
+      required: true
+    attributes:
+      label: Describe the feature
+      description: >-
+        A clear and concise description of what you want.
+  - type: textarea
+    attributes:
+      label: Problem it solves
+      description: >-
+        What limitation or problem does this address?
+  - type: textarea
+    attributes:
+      label: Alternatives considered
+      description: >-
+        Any workarounds or alternative solutions you have considered?
+  - type: textarea
+    attributes:
+      label: Additional context

@@ -1,0 +1,56 @@
+name: Report a bug
+description: Report an issue with this integration
+labels: ["bug"]
+assignees:
+  - macokay
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This form is for bug reports only. For feature requests, use the Feature Request form.
+  - type: textarea
+    validations:
+      required: true
+    attributes:
+      label: Describe the issue
+      description: >-
+        What were you trying to do and what happened?
+        Provide a clear and concise description of the problem.
+  - type: markdown
+    attributes:
+      value: |
+        ## Environment
+  - type: input
+    id: ha_version
+    validations:
+      required: true
+    attributes:
+      label: Home Assistant version
+      placeholder: "2026.4.0"
+      description: >
+        Found in: [Settings → System → Repairs → ⋮ → System information](https://my.home-assistant.io/redirect/system_health/).
+  - type: input
+    id: integration_version
+    validations:
+      required: true
+    attributes:
+      label: Integration version
+      placeholder: "1.0.0"
+  - type: dropdown
+    validations:
+      required: true
+    attributes:
+      label: Installation type
+      options:
+        - Home Assistant OS
+        - Home Assistant Container
+        - Home Assistant Supervised
+        - Home Assistant Core
+  - type: textarea
+    attributes:
+      label: Relevant logs
+      description: Settings → System → Logs — filter by the integration domain.
+      render: txt
+  - type: textarea
+    attributes:
+      label: Additional information
