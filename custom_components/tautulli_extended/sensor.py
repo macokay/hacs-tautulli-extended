@@ -1,4 +1,5 @@
 """Sensors for Tautulli Extended."""
+
 import asyncio
 import logging
 from datetime import datetime, timedelta
@@ -35,16 +36,18 @@ async def async_setup_entry(
     coordinator = TautulliCoordinator(hass, url, api_key)
     await coordinator.async_config_entry_first_refresh()
 
-    async_add_entities([
-        TautulliTotalMoviesSensor(coordinator, entry),
-        TautulliTotalShowsSensor(coordinator, entry),
-        TautulliActiveStreamsSensor(coordinator, entry),
-        TautulliActiveStreamTypeSensor(coordinator, entry),
-        TautulliStreams7dSensor(coordinator, entry),
-        TautulliStreams30dSensor(coordinator, entry),
-        TautulliStreams365dSensor(coordinator, entry),
-        TautulliStreamsThisYearSensor(coordinator, entry),
-    ])
+    async_add_entities(
+        [
+            TautulliTotalMoviesSensor(coordinator, entry),
+            TautulliTotalShowsSensor(coordinator, entry),
+            TautulliActiveStreamsSensor(coordinator, entry),
+            TautulliActiveStreamTypeSensor(coordinator, entry),
+            TautulliStreams7dSensor(coordinator, entry),
+            TautulliStreams30dSensor(coordinator, entry),
+            TautulliStreams365dSensor(coordinator, entry),
+            TautulliStreamsThisYearSensor(coordinator, entry),
+        ]
+    )
 
 
 class TautulliCoordinator(DataUpdateCoordinator):
@@ -116,14 +119,16 @@ class TautulliCoordinator(DataUpdateCoordinator):
         stream_count = int(activity.get("stream_count", 0))
         sessions = []
         for s in activity.get("sessions", []):
-            sessions.append({
-                "user": s.get("user", "Unknown"),
-                "title": s.get("full_title", "Unknown"),
-                "media_type": s.get("media_type", "Unknown"),
-                "player": s.get("player", "Unknown"),
-                "state": s.get("state", "Unknown"),
-                "progress_percent": s.get("progress_percent", "0"),
-            })
+            sessions.append(
+                {
+                    "user": s.get("user", "Unknown"),
+                    "title": s.get("full_title", "Unknown"),
+                    "media_type": s.get("media_type", "Unknown"),
+                    "player": s.get("player", "Unknown"),
+                    "state": s.get("state", "Unknown"),
+                    "progress_percent": s.get("progress_percent", "0"),
+                }
+            )
 
         # Determine active stream type summary
         movie_streams = sum(1 for s in sessions if s["media_type"] == "movie")
@@ -150,8 +155,12 @@ class TautulliCoordinator(DataUpdateCoordinator):
                 daily_totals[i] += int(count)
 
         streams_365d = sum(daily_totals)
-        streams_30d = sum(daily_totals[-30:]) if len(daily_totals) >= 30 else sum(daily_totals)
-        streams_7d = sum(daily_totals[-7:]) if len(daily_totals) >= 7 else sum(daily_totals)
+        streams_30d = (
+            sum(daily_totals[-30:]) if len(daily_totals) >= 30 else sum(daily_totals)
+        )
+        streams_7d = (
+            sum(daily_totals[-7:]) if len(daily_totals) >= 7 else sum(daily_totals)
+        )
 
         # This year: sum entries where date >= Jan 1 of current year
         year_start = f"{datetime.now().year}-01-01"

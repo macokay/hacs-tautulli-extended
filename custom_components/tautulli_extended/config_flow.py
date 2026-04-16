@@ -1,4 +1,5 @@
 """Config flow for Tautulli Extended."""
+
 import aiohttp
 import voluptuous as vol
 from homeassistant import config_entries
