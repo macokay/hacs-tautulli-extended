@@ -93,8 +93,7 @@ jobs:
           DOMAIN: ${{ steps.meta.outputs.domain }}
           ZIP: ${{ steps.meta.outputs.zip_name }}
         run: |
-          cd "custom_components/$DOMAIN"
-          zip -r "../../$ZIP" ./
+          zip -r "$ZIP" "custom_components/$DOMAIN/"
 
       - name: Upload zip to release
         env:
