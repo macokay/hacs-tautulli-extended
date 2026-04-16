@@ -2,6 +2,5 @@
   "name": "Tautulli Extended",
   "content_in_root": false,
   "render_readme": true,
-  "homeassistant": "2023.1.0",
-  "icon": "https://raw.githubusercontent.com/macokay/hacs-tautulli-extended/main/icon.png"
+  "homeassistant": "2023.1.0"
 }
