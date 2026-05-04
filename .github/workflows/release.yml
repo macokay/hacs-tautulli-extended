@@ -88,6 +88,45 @@ jobs:
           git tag -f "$RELEASE_TAG" HEAD
           git push origin "refs/tags/$RELEASE_TAG" --force
 
+      - name: Check dependency freshness
+        run: |
+          python3 - <<'EOF'
+          import json, urllib.request, sys
+          from pathlib import Path
+
+          manifest_paths = list(Path('custom_components').glob('*/manifest.json'))
+          if not manifest_paths:
+              print('No manifest.json found')
+              sys.exit(0)
+
+          manifest = json.loads(manifest_paths[0].read_text())
+          requirements = manifest.get('requirements', [])
+          if not requirements:
+              print('No requirements in manifest')
+              sys.exit(0)
+
+          outdated = []
+          for req in requirements:
+              pkg = req.split('==')[0].split('>=')[0].split('~=')[0].strip()
+              pinned = req.split('==')[1].strip() if '==' in req else '(unpinned)'
+              try:
+                  url = f'https://pypi.org/pypi/{pkg}/json'
+                  with urllib.request.urlopen(url, timeout=10) as r:
+                      data = json.load(r)
+                  latest = data['info']['version']
+                  if pinned != latest and pinned != '(unpinned)':
+                      outdated.append(f'{pkg}: pinned={pinned}, latest={latest}')
+              except Exception as e:
+                  print(f'Warning: could not check {pkg}: {e}')
+
+          if outdated:
+              print('::warning::Outdated dependencies detected (release NOT blocked):')
+              for o in outdated:
+                  print(f'  {o}')
+          else:
+              print('All dependencies up to date')
+          EOF
+
       - name: Create zip asset
         env:
           DOMAIN: ${{ steps.meta.outputs.domain }}
