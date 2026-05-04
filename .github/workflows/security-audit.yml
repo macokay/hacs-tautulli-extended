@@ -1,0 +1,81 @@
+name: Security Audit
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pip-audit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install pip-audit
+        run: pip install pip-audit --quiet
+
+      - name: Run pip-audit on manifest requirements
+        id: audit
+        run: |
+          python3 << 'PYEOF'
+          import subprocess, json, glob, os, tempfile
+
+          findings = []
+          for manifest_path in glob.glob('custom_components/*/manifest.json'):
+              with open(manifest_path) as f:
+                  manifest = json.load(f)
+              requirements = manifest.get('requirements', [])
+              if not requirements:
+                  continue
+
+              with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as tf:
+                  tf.write('\n'.join(requirements))
+                  tf_path = tf.name
+
+              r = subprocess.run(
+                  ['pip-audit', '-r', tf_path, '--format=json', '--skip-editable'],
+                  capture_output=True, text=True
+              )
+              os.unlink(tf_path)
+
+              try:
+                  data = json.loads(r.stdout)
+                  for dep in data.get('dependencies', []):
+                      for vuln in dep.get('vulns', []):
+                          fixes = vuln.get('fix_versions', [])
+                          fix_str = fixes[0] if fixes else 'none'
+                          findings.append(
+                              f'| `{dep["name"]}` | `{dep["version"]}` | {vuln["id"]} | `{fix_str}` |'
+                          )
+              except Exception:
+                  pass
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              if findings:
+                  rows = '\n'.join(findings)
+                  table = f'| Package | Version | CVE | Fix Version |\n|---|---|---|---|\n{rows}'
+                  f.write(f'findings<<EOF\n{table}\nEOF\n')
+              else:
+                  f.write('findings=\n')
+          PYEOF
+
+      - name: Create issue if findings
+        if: steps.audit.outputs.findings != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RELEASE="${{ github.event.release.tag_name }}"
+          TRIGGER="${RELEASE:-manual (workflow_dispatch)}"
+          gh issue create \
+            --title "[Security] pip-audit findings — $(date +%Y-%m-%d)" \
+            --body "$(printf '## Python dependency vulnerabilities\n\nTriggered by: %s\n\n%s\n\nUpdate the affected package versions in `manifest.json`.' "$TRIGGER" "${{ steps.audit.outputs.findings }}")"
