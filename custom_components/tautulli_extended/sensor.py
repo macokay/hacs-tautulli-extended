@@ -253,7 +253,7 @@ class TautulliBaseSensor(CoordinatorEntity, SensorEntity):
         return {
             "identifiers": {(DOMAIN, self._entry.entry_id)},
             "name": "Tautulli Extended",
-            "manufacturer": "by macokay",
+            "manufacturer": "macokay",
             "entry_type": "service",
         }
 
