@@ -25,14 +25,8 @@ _LOGGER = logging.getLogger(__name__)
 SCAN_INTERVAL = timedelta(seconds=SCAN_INTERVAL_SECONDS)
 
 
-def _parse_plays_data(plays: dict) -> dict:
-    """Compute 7d/30d/365d/this-year totals from a get_plays_by_date response."""
-    categories = plays.get("categories", [])
-    daily = [0] * len(categories)
-    for s in plays.get("series", []):
-        for i, c in enumerate(s.get("data", [])):
-            daily[i] += int(c)
-
+def _compute_stats(categories: list, daily: list) -> dict:
+    """Compute 7d/30d/365d/this-year totals from a daily counts list."""
     year_start = f"{datetime.now().year}-01-01"
     this_year_total = 0
     this_year_daily: dict = {}
@@ -121,36 +115,26 @@ class TautulliCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self) -> dict:
         """Fetch latest data from the Tautulli API."""
         try:
-            (
-                libraries,
-                activity,
-                plays,
-                movie_plays,
-                episode_plays,
-            ) = await asyncio.gather(
+            libraries, activity, plays = await asyncio.gather(
                 self._api_call("get_libraries"),
                 self._api_call("get_activity"),
                 self._api_call("get_plays_by_date", {"time_range": "365"}),
-                self._api_call(
-                    "get_plays_by_date", {"time_range": "365", "media_type": "movie"}
-                ),
-                self._api_call(
-                    "get_plays_by_date", {"time_range": "365", "media_type": "episode"}
-                ),
             )
         except (aiohttp.ClientError, TimeoutError) as err:
             raise UpdateFailed(f"Error communicating with Tautulli: {err}") from err
 
-        # Libraries — fall back to cached counts when Plex is offline and Tautulli returns 0
+        # Libraries — build type map + fall back to cache when Plex is offline
         total_movies = 0
         total_shows = 0
         movie_libraries: dict = {}
         show_libraries: dict = {}
+        library_type_map: dict = {}
 
         for lib in libraries:
             section_type = lib.get("section_type", "")
             name = lib.get("section_name", "Unknown")
             count = int(lib.get("count", 0))
+            library_type_map[name] = section_type
             if section_type == "movie":
                 total_movies += count
                 movie_libraries[name] = count
@@ -202,10 +186,25 @@ class TautulliCoordinator(DataUpdateCoordinator):
         else:
             stream_type = "Other"
 
-        # Plays by date
-        p = _parse_plays_data(plays)
-        mp = _parse_plays_data(movie_plays)
-        ep = _parse_plays_data(episode_plays)
+        # Plays by date — split by library type using series names
+        categories = plays.get("categories", [])
+        daily_all = [0] * len(categories)
+        daily_movie = [0] * len(categories)
+        daily_episode = [0] * len(categories)
+
+        for s in plays.get("series", []):
+            lib_type = library_type_map.get(s.get("name", ""), "")
+            for i, c in enumerate(s.get("data", [])):
+                v = int(c)
+                daily_all[i] += v
+                if lib_type == "movie":
+                    daily_movie[i] += v
+                elif lib_type == "show":
+                    daily_episode[i] += v
+
+        p = _compute_stats(categories, daily_all)
+        mp = _compute_stats(categories, daily_movie)
+        ep = _compute_stats(categories, daily_episode)
 
         return {
             "total_movies": total_movies,
