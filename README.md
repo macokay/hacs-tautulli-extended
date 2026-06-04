@@ -34,10 +34,9 @@
 - **Total TV shows** across all Plex show libraries (show count, not seasons or episodes)
 - **Active streams** — live count of concurrent streams
 - **Active stream type** — shows whether active streams are Movie, TV Show, Mixed, or Idle
-- **Streams last 7 days** with daily breakdown
-- **Streams last 30 days** with daily breakdown
-- **Streams last year** (365 days) with daily breakdown
-- **Streams this year** (current calendar year) with daily breakdown
+- **Streams last 7 days / 30 days / 1 year / this year** with daily breakdown (total)
+- **Movie streams** and **Series streams** broken out separately for each period (optional sensors, disabled by default)
+- Library counts persist via cache when Plex is offline — sensors won't drop to zero
 - GUI config flow — no YAML needed
 - Danish and English translations
 - 60-second update interval for near-real-time stream monitoring
@@ -91,16 +90,26 @@ The integration tests the connection against the Tautulli API before saving.
 
 ### Entities
 
-| Entity | Type | Description |
-|---|---|---|
-| `sensor.tautulli_total_movies` | `int` | Total movies across all movie libraries |
-| `sensor.tautulli_total_tv_shows` | `int` | Total TV shows (not seasons or episodes) |
-| `sensor.tautulli_active_streams` | `int` | Number of currently active streams |
-| `sensor.tautulli_active_stream_type` | `string` | Movie, TV Show, Mixed, or Idle |
-| `sensor.tautulli_streams_7_days` | `int` | Total play count over the last 7 days |
-| `sensor.tautulli_streams_30_days` | `int` | Total play count over the last 30 days |
-| `sensor.tautulli_streams_1_year` | `int` | Total play count over the last 365 days |
-| `sensor.tautulli_streams_this_year` | `int` | Total play count since January 1st |
+| Entity | Type | Default | Description |
+|---|---|---|---|
+| `sensor.tautulli_total_movies` | `int` | Enabled | Total movies across all movie libraries |
+| `sensor.tautulli_total_tv_shows` | `int` | Enabled | Total TV shows (not seasons or episodes) |
+| `sensor.tautulli_active_streams` | `int` | Enabled | Number of currently active streams |
+| `sensor.tautulli_active_stream_type` | `string` | Enabled | Movie, TV Show, Mixed, or Idle |
+| `sensor.tautulli_streams_7_days` | `int` | Enabled | Total play count over the last 7 days |
+| `sensor.tautulli_streams_30_days` | `int` | Enabled | Total play count over the last 30 days |
+| `sensor.tautulli_streams_1_year` | `int` | Enabled | Total play count over the last 365 days |
+| `sensor.tautulli_streams_this_year` | `int` | Enabled | Total play count since January 1st |
+| `sensor.tautulli_movie_streams_7_days` | `int` | Disabled | Movie play count over the last 7 days |
+| `sensor.tautulli_movie_streams_30_days` | `int` | Disabled | Movie play count over the last 30 days |
+| `sensor.tautulli_movie_streams_1_year` | `int` | Disabled | Movie play count over the last 365 days |
+| `sensor.tautulli_movie_streams_this_year` | `int` | Disabled | Movie play count since January 1st |
+| `sensor.tautulli_series_streams_7_days` | `int` | Disabled | Series episode play count over the last 7 days |
+| `sensor.tautulli_series_streams_30_days` | `int` | Disabled | Series episode play count over the last 30 days |
+| `sensor.tautulli_series_streams_1_year` | `int` | Disabled | Series episode play count over the last 365 days |
+| `sensor.tautulli_series_streams_this_year` | `int` | Disabled | Series episode play count since January 1st |
+
+Disabled sensors can be enabled individually in **Settings → Devices & Services → Tautulli Extended → entities**.
 
 ### Attributes
 
