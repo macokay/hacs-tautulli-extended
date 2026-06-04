@@ -1,4 +1,5 @@
 """Sensors for Tautulli Extended."""
+
 from __future__ import annotations
 
 import asyncio
@@ -90,7 +91,9 @@ class TautulliCoordinator(DataUpdateCoordinator):
 
     def __init__(self, hass: HomeAssistant, url: str, api_key: str) -> None:
         """Initialize the coordinator."""
-        super().__init__(hass, _LOGGER, name="Tautulli Extended", update_interval=SCAN_INTERVAL)
+        super().__init__(
+            hass, _LOGGER, name="Tautulli Extended", update_interval=SCAN_INTERVAL
+        )
         self._url = url
         self._api_key = api_key
         self._session = async_get_clientsession(hass)
@@ -118,11 +121,19 @@ class TautulliCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self) -> dict:
         """Fetch latest data from the Tautulli API."""
         try:
-            libraries, activity, plays, movie_plays, episode_plays = await asyncio.gather(
+            (
+                libraries,
+                activity,
+                plays,
+                movie_plays,
+                episode_plays,
+            ) = await asyncio.gather(
                 self._api_call("get_libraries"),
                 self._api_call("get_activity"),
                 self._api_call("get_plays_by_date", {"time_range": "365"}),
-                self._api_call("get_plays_by_date", {"time_range": "365", "media_type": "movie"}),
+                self._api_call(
+                    "get_plays_by_date", {"time_range": "365", "media_type": "movie"}
+                ),
                 self._api_call(
                     "get_plays_by_date", {"time_range": "365", "media_type": "episode"}
                 ),
