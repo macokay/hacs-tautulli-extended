@@ -128,13 +128,11 @@ class TautulliCoordinator(DataUpdateCoordinator):
         total_shows = 0
         movie_libraries: dict = {}
         show_libraries: dict = {}
-        library_type_map: dict = {}
 
         for lib in libraries:
             section_type = lib.get("section_type", "")
             name = lib.get("section_name", "Unknown")
             count = int(lib.get("count", 0))
-            library_type_map[name] = section_type
             if section_type == "movie":
                 total_movies += count
                 movie_libraries[name] = count
@@ -186,20 +184,25 @@ class TautulliCoordinator(DataUpdateCoordinator):
         else:
             stream_type = "Other"
 
-        # Plays by date — split by library type using series names
+        # Plays by date — Tautulli uses fixed English series names regardless of library names.
+        # 'Total' is the sum of all others — skip it to avoid double-counting.
+        _MOVIE_SERIES = {"Movies"}
+        _EPISODE_SERIES = {"TV", "TV Shows"}
         categories = plays.get("categories", [])
         daily_all = [0] * len(categories)
         daily_movie = [0] * len(categories)
         daily_episode = [0] * len(categories)
 
         for s in plays.get("series", []):
-            lib_type = library_type_map.get(s.get("name", ""), "")
+            name = s.get("name", "")
+            if name == "Total":
+                continue
             for i, c in enumerate(s.get("data", [])):
                 v = int(c)
                 daily_all[i] += v
-                if lib_type == "movie":
+                if name in _MOVIE_SERIES:
                     daily_movie[i] += v
-                elif lib_type == "show":
+                elif name in _EPISODE_SERIES:
                     daily_episode[i] += v
 
         p = _compute_stats(categories, daily_all)
