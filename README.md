@@ -16,7 +16,7 @@
     <img src="https://img.shields.io/github/v/release/macokay/hacs-tautulli-extended" alt="GitHub release" />
   </a>
   <a href="https://github.com/macokay/hacs-tautulli-extended/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/License-Non--Commercial-blue.svg" alt="License" />
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License" />
   </a>
 </p>
 
@@ -150,4 +150,4 @@ Data is fetched every 60 seconds.
 
 ## License
 
-&copy; 2026 Mac O Kay. Free to use and modify for personal, non-commercial use. Attribution appreciated if you share or build upon this work. Commercial use is not permitted.
+&copy; 2026 Mac O Kay. Licensed under the MIT License. See [LICENSE](LICENSE) for details.
