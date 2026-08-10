@@ -15,7 +15,7 @@ jobs:
         with:
           python-version: "3.13"
       - name: Install ruff
-        run: pip install ruff
+        run: pip install ruff==0.16.2   # pinned: an unpinned linter turns a new default rule into a red build
       - name: Check
         run: ruff check .
       - name: Format check

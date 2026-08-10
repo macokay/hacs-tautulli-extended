@@ -4,10 +4,9 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import aiohttp
-
 from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -18,6 +17,7 @@ from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
     UpdateFailed,
 )
+from homeassistant.util import dt as dt_util
 
 from .const import CONF_API_KEY, CONF_URL, DOMAIN, SCAN_INTERVAL_SECONDS
 
@@ -27,7 +27,7 @@ SCAN_INTERVAL = timedelta(seconds=SCAN_INTERVAL_SECONDS)
 
 def _compute_stats(categories: list, daily: list) -> dict:
     """Compute 7d/30d/365d/this-year totals from a daily counts list."""
-    year_start = f"{datetime.now().year}-01-01"
+    year_start = f"{dt_util.now().year}-01-01"
     this_year_total = 0
     this_year_daily: dict = {}
     for date_str, total in zip(categories, daily):
